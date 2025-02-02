@@ -52,22 +52,46 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", loadEntries);
+
         function addEntry() {
             const input = document.getElementById("diaryInput");
             const text = input.value.trim();
             if (text === "") return;
             
             const date = new Date().toLocaleString();
-            const entry = document.createElement("div");
-            entry.classList.add("entry");
-            entry.innerHTML = `<strong>${date}</strong><br>${text} <br> <button class='delete-btn' onclick='deleteEntry(this)'>Delete</button>`;
+            const entry = { date, text };
             
-            document.getElementById("diaryEntries").appendChild(entry);
+            let entries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+            entries.push(entry);
+            localStorage.setItem("diaryEntries", JSON.stringify(entries));
+            
+            displayEntries();
             input.value = "";
         }
 
-        function deleteEntry(button) {
-            button.parentElement.remove();
+        function displayEntries() {
+            const diaryEntries = document.getElementById("diaryEntries");
+            diaryEntries.innerHTML = "";
+            
+            let entries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+            entries.forEach((entry, index) => {
+                const entryDiv = document.createElement("div");
+                entryDiv.classList.add("entry");
+                entryDiv.innerHTML = `<strong>${entry.date}</strong><br>${entry.text} <br> <button class='delete-btn' onclick='deleteEntry(${index})'>Delete</button>`;
+                diaryEntries.appendChild(entryDiv);
+            });
+        }
+
+        function deleteEntry(index) {
+            let entries = JSON.parse(localStorage.getItem("diaryEntries")) || [];
+            entries.splice(index, 1);
+            localStorage.setItem("diaryEntries", JSON.stringify(entries));
+            displayEntries();
+        }
+
+        function loadEntries() {
+            displayEntries();
         }
     </script>
 </body>
